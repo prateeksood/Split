@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "77fd71fc-616e-4b99-8af7-5cfb2dbf87e6"
+      }
+    },
+    "android": {
+      "package": "com.kunkshi.split"
+    },
+    "owner": "prateeksood",
+    "ios": {
+      "bundleIdentifier": "com.kunkshi.split",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    }
+  }
+}

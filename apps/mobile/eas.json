@@ -1,0 +1,64 @@
+{
+  "cli": {
+    "version": ">= 13.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_USE_METRO_WORKSPACE_ROOT": "0",
+        "EXPO_PUBLIC_API_URL": "https://split-600e.onrender.com",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "563520723268-3req006savcah8a6nsc2j446fj3a45fr.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "563520723268-cmgf0d7unjk36auv4ntqbbb4bhpk7mrt.apps.googleusercontent.com"
+      },
+      "android": {
+        "buildType": "apk",
+        "image": "latest"
+      },
+      "ios": {
+        "simulator": true,
+        "image": "latest"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_USE_METRO_WORKSPACE_ROOT": "0",
+        "EXPO_PUBLIC_API_URL": "https://split-600e.onrender.com",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "563520723268-3req006savcah8a6nsc2j446fj3a45fr.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "563520723268-cmgf0d7unjk36auv4ntqbbb4bhpk7mrt.apps.googleusercontent.com"
+      },
+      "android": {
+        "buildType": "apk",
+        "image": "latest"
+      },
+      "ios": {
+        "simulator": true,
+        "image": "latest"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_USE_METRO_WORKSPACE_ROOT": "0",
+        "EXPO_PUBLIC_API_URL": "https://split-600e.onrender.com",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "563520723268-3req006savcah8a6nsc2j446fj3a45fr.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "563520723268-cmgf0d7unjk36auv4ntqbbb4bhpk7mrt.apps.googleusercontent.com"
+      },
+      "android": {
+        "buildType": "app-bundle",
+        "image": "latest"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./google-service-account.json",
+        "track": "internal"
+      }
+    }
+  }
+}

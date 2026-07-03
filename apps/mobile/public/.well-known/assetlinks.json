@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.kunkshi.split",
+      "sha256_cert_fingerprints": [
+        "6D:74:DC:B1:B5:C5:92:39:56:EE:6C:4B:EF:00:95:04:EB:FB:2E:3A:5D:DC:0A:54:F2:45:18:C5:60:A4:73:12"
+      ]
+    }
+  }
+]

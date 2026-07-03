@@ -1,0 +1,245 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  username      String?   @unique
+  name          String
+  passwordHash  String?
+  avatarUrl     String?
+  defaultCurrency String  @default("USD")
+  googleId      String?   @unique
+  pushToken     String?
+  emailVerified Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  refreshTokens     RefreshToken[]
+  groupMembers      GroupMember[]
+  expensesPaid      Expense[]       @relation("ExpensePayer")
+  expenseSplits     ExpenseSplit[]
+  settlementsFrom   Settlement[]    @relation("SettlementPayer")
+  settlementsTo     Settlement[]    @relation("SettlementPayee")
+  notifications     Notification[]
+  friendshipsA      Friendship[]    @relation("FriendshipUserA")
+  friendshipsB      Friendship[]    @relation("FriendshipUserB")
+  passwordResets    PasswordResetToken[]
+  emailVerifications EmailVerificationToken[]
+  expenseAuditLogs  ExpenseAuditLog[]
+
+  @@index([deletedAt])
+  @@index([createdAt])
+  @@map("users")
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("email_verification_tokens")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+model Group {
+  id         String    @id @default(uuid())
+  name       String
+  category   String    @default("Other")
+  color      String?
+  currency   String    @default("USD")
+  inviteCode String    @unique
+  createdBy  String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  members       GroupMember[]
+  expenses      Expense[]
+  expenseAuditLogs ExpenseAuditLog[]
+
+  @@index([deletedAt])
+  @@map("groups")
+}
+
+model GroupMember {
+  id       String   @id @default(uuid())
+  groupId  String
+  userId   String
+  role     String   @default("member")
+  joinedAt DateTime @default(now())
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@index([userId])
+  @@map("group_members")
+}
+
+model Expense {
+  id          String    @id @default(uuid())
+  groupId     String
+  description String
+  amount      Decimal   @db.Decimal(12, 2)
+  currency    String    @default("USD")
+  category    String    @default("Other")
+  paidById    String
+  date        DateTime  @default(now())
+  splitType   String    @default("equal")
+  receiptUrl  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  group     Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  paidBy    User             @relation("ExpensePayer", fields: [paidById], references: [id])
+  splits    ExpenseSplit[]
+  auditLogs ExpenseAuditLog[]
+
+  @@index([groupId, deletedAt, date])
+  @@index([paidById])
+  @@map("expenses")
+}
+
+model ExpenseSplit {
+  id        String  @id @default(uuid())
+  expenseId String
+  userId    String
+  amount    Decimal @db.Decimal(12, 2)
+
+  expense Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([expenseId, userId])
+  @@index([userId])
+  @@map("expense_splits")
+}
+
+model Settlement {
+  id            String   @id @default(uuid())
+  groupId       String?
+  payerId       String
+  payeeId       String
+  amount        Decimal  @db.Decimal(12, 2)
+  currency      String   @default("USD")
+  note          String?
+  paymentRef    String?
+  createdAt     DateTime @default(now())
+
+  payer User @relation("SettlementPayer", fields: [payerId], references: [id])
+  payee User @relation("SettlementPayee", fields: [payeeId], references: [id])
+
+  @@index([payerId, createdAt])
+  @@index([payeeId, createdAt])
+  @@index([groupId])
+  @@map("settlements")
+}
+
+model Friendship {
+  id        String   @id @default(uuid())
+  userAId   String
+  userBId   String
+  status    String   @default("accepted")
+  createdAt DateTime @default(now())
+
+  userA User @relation("FriendshipUserA", fields: [userAId], references: [id])
+  userB User @relation("FriendshipUserB", fields: [userBId], references: [id])
+
+  @@unique([userAId, userBId])
+  @@index([status])
+  @@map("friendships")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  title     String
+  body      String
+  data      Json?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([userId, read])
+  @@map("notifications")
+}
+
+/** Immutable audit log for every expense create or update. */
+model ExpenseAuditLog {
+  id          String   @id @default(uuid())
+  expenseId   String
+  groupId     String
+  actorId     String
+  action      String   // 'created' | 'updated' | 'deleted'
+  description String?
+  amount      Decimal? @db.Decimal(12, 2)
+  category    String?
+  paidById    String?
+  splitType   String?
+  diff        Json?    // { field: [oldValue, newValue] } for updates
+  createdAt   DateTime @default(now())
+
+  expense Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  actor   User    @relation(fields: [actorId], references: [id])
+  group   Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([expenseId])
+  @@index([groupId, createdAt])
+  @@index([actorId])
+  @@map("expense_audit_logs")
+}
+
+model AiParseLog {
+  id         String   @id @default(uuid())
+  userId     String
+  provider   String
+  input      String
+  success    Boolean
+  durationMs Int?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([provider])
+  @@map("ai_parse_logs")
+}
